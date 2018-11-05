@@ -22,6 +22,7 @@
   <div id="app">
     <canvas ref="canvas" @click="handleCanvasClick"></canvas>
     <br>
+    <div>当前在线人数:{{onlineCount}}</div>
     <button @click="this.pickingColor = true">{{isPickingColor ? "正在取色" : "取色"}}</button>
     <input type="color" v-model = "currentColor">
     <label v-for="color of commomColors" :style="{backgroundColor:color}">
@@ -40,6 +41,7 @@
       isPickingColor: false,
       width: 0,
       heigh: 0,
+      onlineCount: 0,
     },
     methods:{
       handleCanvasClick(e){
@@ -86,12 +88,13 @@
           var tmpUrl = URL.createObjectURL(data)
           var image = new Image()
           image.src = tmpUrl
-          document.body.appendChild(image)
+          //document.body.appendChild(image)
           image.onload = ()=>{
             ctx.drawImage(image,0,0)
           }
         } else {
           data = JSON.parse(data)
+          this.onlineCount = data.onlineCount
           if(data.type === "updateDot"){
             ctx.fillStyle = data.color
             ctx.fillRect(data.x, data.y, 1, 1)

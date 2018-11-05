@@ -12,6 +12,7 @@ const wss = new ws.Server({server})
 const width = 256
 const height = 256
 let img
+let onlineCount = 0
 
 // try{
 //     img = await jimp.read(path.join(__dirname,"./pixelData.png"))
@@ -39,12 +40,18 @@ setInterval(()=>{
 
 wss.on("connection", (ws, req)=>{
     var lastDraw = 0
+    onlineCount++
+    ws.send(JSON.stringify({onlineCount}))
     img.getBuffer(jimp.MIME_PNG,(err,buf)=>{
         if(err){
             console.log("get buffer err" + err)
         } else {
             ws.send(buf)
         }
+    })
+    ws.on("close", ()=>{
+        onlineCount--
+        ws.send(JSON.stringify({onlineCount}))
     })
     ws.on("message", (msg)=>{
         //console.log("msg", msg)
@@ -62,7 +69,7 @@ wss.on("connection", (ws, req)=>{
             wss.clients.forEach((client) => {
                 client.send(JSON.stringify({
                     type: "updateDot",
-                    x,y,color,
+                    x,y,color,onlineCount
                 }))
             })
         }
