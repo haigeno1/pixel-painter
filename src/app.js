@@ -41,7 +41,9 @@ setInterval(()=>{
 wss.on("connection", (ws, req)=>{
     var lastDraw = 0
     onlineCount++
-    ws.send(JSON.stringify({onlineCount}))
+    wss.clients.forEach(client => {
+        client.send(JSON.stringify({onlineCount}))
+    })
     img.getBuffer(jimp.MIME_PNG,(err,buf)=>{
         if(err){
             console.log("get buffer err" + err)
@@ -51,7 +53,9 @@ wss.on("connection", (ws, req)=>{
     })
     ws.on("close", ()=>{
         onlineCount--
-        ws.send(JSON.stringify({onlineCount}))
+        wss.clients.forEach(client => {
+            client.send(JSON.stringify({onlineCount}))
+        })
     })
     ws.on("message", (msg)=>{
         //console.log("msg", msg)
